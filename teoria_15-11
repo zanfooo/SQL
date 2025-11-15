@@ -1,0 +1,147 @@
+ESEMPI DI SQL
+
+SELECT * from Studenti;
+SELECT Nome, Cognome from Studenti;
+SELECT * from Studenti where votomedio > 27;
+SELECT * from Studenti where votomedio between 23 and 29;
+SELECT * from Studenti where votomedio >= 23 and votomedio <=29;
+SELECT * from Studenti where votomedio <= 20 or votomedio >=27;
+SELECT * from Studenti where corso in (‘Informatica’,’Sistemi’);
+SELECT * from Studenti where corso like ‘Informatica’;
+SELECT * from Studenti where corso = ‘Informatica’;
+SELECT * from Studenti where corso like ‘I%’;
+SELECT * from Studenti where corso like ‘I’;
+SELECT * from mock_data
+order by last_name asc;
+I database sono basati sull’acronimo CRUD, gli esempi sopra sono tutti della R, adesso ci saranno esempi per la U:
+Alter table studenti add dipartimento varchar(50); questo comando serve per alterare la tabella aggiungendo una colonna.
+alter table studenti drop column dipartimento; questo comando serve per cavare una colonna.
+alter table studenti change column cognome cognome not null char(20) after id_studente; questo comando serve per non avere una colonna vuota con, “after” cambia la posizione del dato mettendolo dopo id_studente; in caso si può cambiare pure la posizione mettendolo primo con “first”.
+update studenti set voto = 8 where id_studente=1;
+update studenti set nome = ‘Orazio’ where id_studente=1;
+update studenti set nome = ‘giovanni’ where cognome=’Verdi’; 
+
+Adesso farò degli esempi per la D:
+delete from studenti where id_studenti=1; elimina la tupla nel database dove l’id è 1.
+delete from studenti where cognome= ‘Verdi’ and nome = ‘Aldo’;
+
+Se si prova a fare drop sulla tabella elimina tutta la tabella, mentre delete bisogna specificare cosa eliminare; truncate invece pulisce i dati ma mantenendo la struttura della tabella, al contrario di drop che fa esplodere tutto.
+Per usare “char” o “varchar” bisogna stare attenti perchè char si usa quando si è sicuri di una certa lunghezza, varchar invece quando una lunghezza può essere variabile. 
+
+FUNZIONI DI AGGREGAZIONE
+
+Sono delle funzioni che servono ad aggregare per ottenere dei numeri, ossia i numeri applicati ad un certo campo (esempio: la media, prende tutti gli elementi di una colonna e restituisce la media di essi).
+
+select count(*) as totaleclienti from mock_data;
+in caso che trovi un elemento che sia NULL lo conta ugualmente se metti *, invece se si specifica un campo particolare, se vi è un NULL non viene considerato.
+In caso ci sia un campo uguale (esempio, nome) conta tutti i nomi senza considerare che sia una ripetizione, per risolvere il problema bisogna mettere “DISTINCT nome” dentro al count.
+
+select sum(voto) as sommaVoti from studenti;
+“sum” serve per fare la somma di un campo di numeri.
+per unire più metodi insieme bisogna usare la virgola (count(voto) as contaVoto, sum(voto) as sommaVoto); dentro ad “sum” si può mettere il DISTINCT perchè tanto somma solo i voti che non si ripetono.
+
+select avg(voto) as mediaClasse from studenti;
+per calcolare la media di un campo si usa avg e valgono gli stessi principi dei metodi precedenti.
+
+select min(voto) as votoMinimo from studenti;
+metodo min, dove seleziona il minimo di un certo campo.
+
+select max(voto) as votoMassimo from studenti;
+non servono spiegazioni, ma è inutile usare il DISTINCT, anche sul min è così.
+
+group by è una clausola di aggregazione per raggruppare diversi campi sotto dei determinati campi, bisogna sempre specificare sotto cosa raggruppare i risultati sennò si smarza tutto, perchè a volte potrebbe sembrare che ci siano duplicati, sembrando giusto, MA È SBAGLIATO.
+
+ select cognome,nome,materia, avg(voto) as mediavoti
+from studenti2
+group by studenti2
+having avg(voto) > 6
+
+alter table studenti2 add num_interrogazioni;
+update studenti2 add num_interrogazioni = 4;
+
+Non confondere mai l’having (lavora sul raggruppamento del group by) e il where(lavora sulla tabella)
+
+SELECT 
+    materia,
+    AVG(voto) AS media_voti
+FROM voti
+WHERE voto >= 6
+GROUP BY materia
+HAVING AVG(voto) > 7;
+
+Vincolo interelazionale = un legame tra più tabelle collegate dagli id (es. in una tabella di visite, devo legare ogni visita ad un id del paziente, l’id del paziente nella tabella delle visite si chiama FK, cioè foreign key), i link delle FK possono essere ripetibili, perché tanto gli id rimangono sempre quelli; è molto importante.
+
+create table pazienti(
+  id_paziente int primary key auto_increment,
+  cognome varchar(50) not null,
+  nome varchar(50) not null,
+  data_nascita date,
+  provincia char(2),
+  codice_Asl varchar(10)
+);
+
+create table visite(
+  id_visita int primary key auto_increment,
+  data_visita date,
+  peso decimal(5,2),
+  pressione_min int,
+  pressione_max int,
+  glicemia decimal(5,2),
+  id_paziente int,
+  foreign key(id_paziente) references pazienti (id_paziente)
+);
+
+insert into pazienti(cognome,nome,data_nascita,provincia,codice_Asl)
+values
+('Bianchi', 'Luca', '1985-04-10', 'Milano', 'ASL-MI01'),
+('Rossi', 'Marco', '1990-07-23', 'Napoli', NULL),
+('Verdi', 'Anna', '1978-12-01', 'Roma', 'ASL-RM05'),
+('Neri', 'Giulia', '2000-02-14', 'Milano', 'ASL-MI03'),
+('Esposito', 'Francesco', '1983-09-19', 'Napoli', 'ASL-NA07'),
+('Conti', 'Marta', '1995-05-30', 'Roma', NULL);
+
+
+insert into visite(data_visita, peso,altezza,pressione_min,pressione_max,glicemia,id_paziente)
+values
+('2024-03-15', 70, 175, 80, 120, 95, 1),
+('2024-06-10', 75, 175, 85, 125, 100, 1),
+('2020-05-22', 92, 180, 95, 145, 112, 2),
+('2020-11-03', 88, 178, 90, 135, 108, 5),
+('2020-08-12', 89, 178, 85, 140, 115, 5),
+('2025-01-09', 59, 160, 100, 150, 99, 3),
+('2025-02-02', 65, 165, 85, 118, 100, 4),
+('2025-09-05', 62, 165, 70, 110, 98, 4),
+('2025-03-15', 58, 170, 95, 145, 85, 6);
+
+select *
+from pazienti p
+join visite v
+on p.id_paziente = v.Id_paziente;
+select p.cognome,p.nome,v.pressione_min,v.pressione_max
+from pazienti p
+join visite v
+on p.id_paziente = v.id_paziente;
+
+select p.cognome,p.nome,avg(v.pressione_min) as media_min, avg(v.pressione_max) as media_max
+from pazienti p
+join visite v
+on p.id_paziente = v.id_paziente
+where p.cognome = ‘Bianchi’ and p.nome = ‘Luca’
+group by p.nome, p.cognome;
+
+select p.cognome,p.nome, avg(v.pressione_min) as media_min
+from pazienti p
+join visite v
+on p.id_paziente = v.id_paziente
+group by p.nome,p.cognome;
+
+
+Bisogna in questo caso inserire OBBLIGATORIAMENTE prima il paziente perché non si possono inserire visite di pazienti che non esistono.Quando bisogna fare le query per una tabella di solito si sceglie quella principale, che nel caso dell’esempio sopra è PAZIENTI, dandogli anche un alias (es. P).
+
+Se si prova a fare “drop table” degli pazienti da errore, perché vi è una relazione con la foreign key e quindi bisogna rimuovere prima la tabella visite (non essendo quella principale) e poi si può rimuovere la pazienti; si possono pure alternare nelle query le 2 tabelle, perchè tanto hanno la connessione.
+
+select p.cognome,p.nome
+from pazienti p
+join visite v
+on p.id_paziente = v.id_paziente
+where (v.pressione_max - v.pressione_min) < 40;
