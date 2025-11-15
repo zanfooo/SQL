@@ -46,6 +46,11 @@ insert into visite(data_visita, peso, altezza, pressione_min, pressione_max, gli
 ('2025-03-15', 58, 170, 95, 145, 85, 6),
 ('2021-02-03','60','180','90','125','75',null);
 
+insert into visite(data_visita, peso, altezza, pressione_min, pressione_max, glicemia, id_paziente) values 
+('2025-09-05', 62, 165, 70, 110, 98, null),
+('2025-03-15', 58, 170, 95, 145, 85, null);
+
+
 select * from pazienti p join visite v on p.id_paziente = v.id_paziente;
 
 select * from visite v join pazienti p on p.id_paziente = v.id_paziente;
@@ -91,8 +96,15 @@ order by avg(pressione_max) DESC;
 
 SELECT COUNT(v.id_visita) AS visite_senza_paziente
 FROM visite v
-LEFT JOIN pazienti p ON v.id_paziente = p.id_paziente
+left JOIN pazienti p ON v.id_paziente = p.id_paziente
 WHERE p.id_paziente IS NULL;
+
+select p.nome, p.cognome,
+avg(v.pressione_max) as pressione_massima,
+avg(v.pressione_min) as pressione_minima
+from pazienti p inner join visite v on p.id_paziente = v.id_paziente 
+group by p.id_paziente, p.nome, p.cognome 
+having avg(pressione_max) > 130;
 
 
 
