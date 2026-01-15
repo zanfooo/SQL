@@ -1,4 +1,6 @@
+create database if not exists nicolo_zanforlin_1d_ripasso;
 
+use nicolo_zanforlin_1d_ripasso;
 
 CREATE TABLE produttori (
     id_produttore SERIAL PRIMARY KEY,
