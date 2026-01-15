@@ -3,7 +3,7 @@ create database if not exists nicolo_zanforlin_1d_ripasso;
 use nicolo_zanforlin_1d_ripasso;
 
 CREATE TABLE produttori (
-    id_produttore SERIAL PRIMARY KEY,
+    id_produttore AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     paese VARCHAR(50),
     anno_fondazione INT
@@ -11,7 +11,7 @@ CREATE TABLE produttori (
 
 
 CREATE TABLE standard_wifi (
-    id_standard SERIAL PRIMARY KEY,
+    id_standard AUTO_INCREMENT PRIMARY KEY,
     nome_standard VARCHAR(50) NOT NULL,
     ieee VARCHAR(20),
     banda_supportata VARCHAR(100),
@@ -22,7 +22,7 @@ CREATE TABLE standard_wifi (
 
 
 CREATE TABLE access_point (
-    id_access_point SERIAL PRIMARY KEY,
+    id_access_point AUTO_INCREMENT PRIMARY KEY,
     modello VARCHAR(100) NOT NULL,
     id_produttore INT NOT NULL,
     id_standard INT NOT NULL,
@@ -80,3 +80,40 @@ VALUES
 ('Linksys LAPAC1750', 7, 6, 2, TRUE, 230.00, 2017),
 ('Huawei AP6050DN', 8, 6, 2, TRUE, 260.00, 2018),
 ('Huawei AirEngine 6760-X1', 8, 8, 2, TRUE, 580.00, 2022);
+
+
+SELECT modello, prezzo_euro FROM access_point WHERE prezzo_euro < 100 ORDER BY prezzo_euro;
+
+SELECT nome_standard, ieee, banda_supportata, velocita_massima_mbps FROM standard_wifi WHERE obsoleto = FALSE;
+
+UPDATE standard_wifi SET vecchio = TRUE WHERE ieee = '802.11n';
+
+DELETE FROM access_point WHERE anno_produzione < 2002;
+DELETE FROM produttori WHERE id_produttore = 'Asus');
+
+SELECT 
+    ap.modello,
+    p.nome AS produttore,
+    sw.nome_standard,
+    sw.banda_supportata,
+    ap.prezzo_euro
+FROM access_point ap
+JOIN produttori p ON ap.id_produttore = p.id_produttore
+JOIN standard_wifi sw ON ap.id_standard = sw.id_standard
+WHERE sw.obsoleto = FALSE
+ORDER BY ap.prezzo_euro DESC;
+
+SELECT modello, prezzo_euro, anno_produzione
+FROM access_point
+WHERE prezzo_euro < 100
+UNION
+SELECT modello, prezzo_euro, anno_produzione
+FROM access_point
+WHERE anno_produzione >= 2021
+ORDER BY anno_produzione DESC;
+
+SELECT nome AS nome_elemento, 'Produttore' AS tipo
+FROM produttori
+UNION
+SELECT nome_standard AS nome_elemento, 'Standard Wi-Fi' AS tipo
+FROM standard_wifi;
